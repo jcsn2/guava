@@ -25,14 +25,14 @@ import com.google.common.testing.SerializableTester;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import junit.framework.TestCase;
 
 /**
  * Tests for {@link AtomicLongMap}.
  *
  * @author mike nonemacher
- * Monitores, eu recebi uma classe inteira de testes, todos com pequenos métodos e eu com uma classe, e tem muitos testes que repetem o que eu já expliquei
- * por esse motivo não fiz todos os testes, pois já demonstrei para que os testes servem nos que já foram explicados.
  */
 @GwtCompatible(emulated = true)
 public class AtomicLongMapTest extends TestCase {
@@ -41,7 +41,6 @@ public class AtomicLongMapTest extends TestCase {
 
   private final Random random = new Random(301);
 
-  // Testes paa verificar NullPointer's
   @GwtIncompatible // NullPointerTester
   public void testNulls() {
     NullPointerTester tester = new NullPointerTester();
@@ -54,14 +53,14 @@ public class AtomicLongMapTest extends TestCase {
   public void testCreate_map() {
     Map<String, Long> in = ImmutableMap.of("1", 1L, "2", 2L, "3", 3L);
     AtomicLongMap<String> map = AtomicLongMap.create(in);
-    assertFalse(map.isEmpty()); //vai garantir que as posições do map não sejam vazias
-    assertSame(3, map.size()); //Verifica se o tamanho do map é igual a 3
-    assertTrue(map.containsKey("1")); //Vai garantir que o resultado esperado seja verdadeiro, Que uma chave específica ("1") está sendo mapeada no map.
-    assertTrue(map.containsKey("2")); //Vai garantir que o resultado esperado seja verdadeiro, Que uma chave específica ("2") está sendo mapeada no map.
-    assertTrue(map.containsKey("3")); //Vai garantir que o resultado esperado seja verdadeiro, Que uma chave específica ("3") está sendo mapeada no map.
-    assertEquals(1L, map.get("1")); //Vai garantir que o resultado esperado seja igual ao resultado obtido, neste caso esperando 1L para a "Key" = "1".
-    assertEquals(2L, map.get("2")); //Vai garantir que o resultado esperado seja igual ao resultado obtido, neste caso esperando 2L para a "Key" = "2".
-    assertEquals(3L, map.get("3")); //Vai garantir que o resultado esperado seja igual ao resultado obtido, neste caso esperando 3L para a "Key" = "3".
+    assertFalse(map.isEmpty());
+    assertSame(3, map.size());
+    assertTrue(map.containsKey("1"));
+    assertTrue(map.containsKey("2"));
+    assertTrue(map.containsKey("3"));
+    assertEquals(1L, map.get("1"));
+    assertEquals(2L, map.get("2"));
+    assertEquals(3L, map.get("3"));
   }
 
   public void testIncrementAndGet() {
@@ -71,30 +70,30 @@ public class AtomicLongMapTest extends TestCase {
       long before = map.get(key);
       long result = map.incrementAndGet(key);
       long after = map.get(key);
-      assertEquals(before + 1, after);//Vai garantir que o resultado esperado seja igual ao resultado obtido, no caso que o before + 1 seja igual ao after
-      assertEquals(after, result);//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o after seja igual ao result
+      assertEquals(before + 1, after);
+      assertEquals(after, result);
     }
-    assertEquals(1, map.size());//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o size do map seja igual ao valor esperado que é 1
-    assertTrue(!map.isEmpty());//Vai garantir que o resultado esperado seja verdadeiro, no caso que o map não seja vazio
-    assertTrue(map.containsKey(key));//Vai garantir que o resultado esperado seja verdadeiro, no caso se contem no map a "key" passada no parametro
-    assertEquals(ITERATIONS, (int) map.get(key));////Vai garantir que o resultado esperado seja igual ao resultado obtido, que o número de iterações seja igual ao valor da ultima "key"
+    assertEquals(1, map.size());
+    assertTrue(!map.isEmpty());
+    assertTrue(map.containsKey(key));
+    assertEquals(ITERATIONS, (int) map.get(key));
   }
 
   public void testIncrementAndGet_zero() {
     AtomicLongMap<String> map = AtomicLongMap.create();
     String key = "key";
-    assertEquals(0L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido
-    assertFalse(map.containsKey(key));//Verifica se o valor esperado é falso ou não
+    assertEquals(0L, map.get(key));
+    assertFalse(map.containsKey(key));
 
-    assertEquals(1L, map.incrementAndGet(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido, neste caso incrementando para essa chave o valor 1
-    assertEquals(1L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido, se 1 é igual ao valor da key
+    assertEquals(1L, map.incrementAndGet(key));
+    assertEquals(1L, map.get(key));
 
-    assertEquals(0L, map.decrementAndGet(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertEquals(0L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertTrue(map.containsKey(key));//
+    assertEquals(0L, map.decrementAndGet(key));
+    assertEquals(0L, map.get(key));
+    assertTrue(map.containsKey(key));
 
-    assertEquals(1L, map.incrementAndGet(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertEquals(1L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
+    assertEquals(1L, map.incrementAndGet(key));
+    assertEquals(1L, map.get(key));
   }
 
   public void testGetAndIncrement() {
@@ -104,30 +103,30 @@ public class AtomicLongMapTest extends TestCase {
       long before = map.get(key);
       long result = map.getAndIncrement(key);
       long after = map.get(key);
-      assertEquals(before + 1, after);//Vai garantir que o resultado esperado seja igual ao resultado obtido, no caso que o before + 1 seja igual ao after
-      assertEquals(before, result);//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o before seja igual ao result
+      assertEquals(before + 1, after);
+      assertEquals(before, result);
     }
-    assertEquals(1, map.size());//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o size do map seja igual ao valor esperado que é 1
-    assertTrue(!map.isEmpty());//Vai garantir que o resultado esperado seja verdadeiro, no caso que o map não seja vazio
-    assertTrue(map.containsKey(key));//Vai garantir que o resultado esperado seja verdadeiro, no caso se contem no map a "key" passada no parametro
-    assertEquals(ITERATIONS, (int) map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o número de iterações seja igual ao valor da ultima "key"
+    assertEquals(1, map.size());
+    assertTrue(!map.isEmpty());
+    assertTrue(map.containsKey(key));
+    assertEquals(ITERATIONS, (int) map.get(key));
   }
 
   public void testGetAndIncrement_zero() {
     AtomicLongMap<String> map = AtomicLongMap.create();
     String key = "key";
-    assertEquals(0L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido
-    assertFalse(map.containsKey(key));//Verifica se o valor esperado é falso ou não
+    assertEquals(0L, map.get(key));
+    assertFalse(map.containsKey(key));
 
-    assertEquals(0L, map.getAndIncrement(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertEquals(1L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
+    assertEquals(0L, map.getAndIncrement(key));
+    assertEquals(1L, map.get(key));
 
-    assertEquals(1L, map.getAndDecrement(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertEquals(0L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertTrue(map.containsKey(key));//
+    assertEquals(1L, map.getAndDecrement(key));
+    assertEquals(0L, map.get(key));
+    assertTrue(map.containsKey(key));
 
-    assertEquals(0L, map.getAndIncrement(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertEquals(1L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
+    assertEquals(0L, map.getAndIncrement(key));
+    assertEquals(1L, map.get(key));
   }
 
   public void testDecrementAndGet() {
@@ -137,30 +136,30 @@ public class AtomicLongMapTest extends TestCase {
       long before = map.get(key);
       long result = map.decrementAndGet(key);
       long after = map.get(key);
-      assertEquals(before - 1, after);//Vai garantir que o resultado esperado seja igual ao resultado obtido, no caso que o before - 1 seja igual ao after
-      assertEquals(after, result);//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o after seja igual ao result
+      assertEquals(before - 1, after);
+      assertEquals(after, result);
     }
-    assertEquals(1, map.size());//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o size do map seja igual ao valor esperado que é 1
-    assertTrue(!map.isEmpty());//Vai garantir que o resultado esperado seja verdadeiro, no caso que o map não seja vazio
-    assertTrue(map.containsKey(key));//Vai garantir que o resultado esperado seja verdadeiro, no caso se contem no map a "key" passada no parametro
-    assertEquals(-1 * ITERATIONS, (int) map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o número de iterações seja igual ao valor da ultima "key"
+    assertEquals(1, map.size());
+    assertTrue(!map.isEmpty());
+    assertTrue(map.containsKey(key));
+    assertEquals(-1 * ITERATIONS, (int) map.get(key));
   }
 
   public void testDecrementAndGet_zero() {
     AtomicLongMap<String> map = AtomicLongMap.create();
     String key = "key";
-    assertEquals(0L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido
-    assertFalse(map.containsKey(key));//Verifica se o valor esperado é falso ou não
+    assertEquals(0L, map.get(key));
+    assertFalse(map.containsKey(key));
 
-    assertEquals(-1L, map.decrementAndGet(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertEquals(-1L, map.get(key));////Vai garantir que o resultado esperado seja igual ao resultado obtido,
+    assertEquals(-1L, map.decrementAndGet(key));
+    assertEquals(-1L, map.get(key));
 
-    assertEquals(0L, map.incrementAndGet(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertEquals(0L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertTrue(map.containsKey(key));//
+    assertEquals(0L, map.incrementAndGet(key));
+    assertEquals(0L, map.get(key));
+    assertTrue(map.containsKey(key));
 
-    assertEquals(-1L, map.decrementAndGet(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertEquals(-1L, map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
+    assertEquals(-1L, map.decrementAndGet(key));
+    assertEquals(-1L, map.get(key));
   }
 
   public void testGetAndDecrement() {
@@ -170,30 +169,30 @@ public class AtomicLongMapTest extends TestCase {
       long before = map.get(key);
       long result = map.getAndDecrement(key);
       long after = map.get(key);
-      assertEquals(before - 1, after);//Vai garantir que o resultado esperado seja igual ao resultado obtido, no caso que o before - 1 seja igual ao after
-      assertEquals(before, result);//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o before seja igual ao result
+      assertEquals(before - 1, after);
+      assertEquals(before, result);
     }
-    assertEquals(1, map.size());//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o size do map seja igual ao valor esperado que é 1
-    assertTrue(!map.isEmpty());//Vai garantir que o resultado esperado seja verdadeiro, no caso que o map não seja vazio
-    assertTrue(map.containsKey(key));//Vai garantir que o resultado esperado seja verdadeiro, no caso se contem no map a "key" passada no parametro
-    assertEquals(-1 * ITERATIONS, (int) map.get(key));//Vai garantir que o resultado esperado seja igual ao resultado obtido, que o número de iterações seja igual ao valor da ultima "key"
+    assertEquals(1, map.size());
+    assertTrue(!map.isEmpty());
+    assertTrue(map.containsKey(key));
+    assertEquals(-1 * ITERATIONS, (int) map.get(key));
   }
 
   public void testGetAndDecrement_zero() {
     AtomicLongMap<String> map = AtomicLongMap.create();
     String key = "key";
-    assertEquals(0L, map.get(key));//
-    assertFalse(map.containsKey(key));//
+    assertEquals(0L, map.get(key));
+    assertFalse(map.containsKey(key));
 
-    assertEquals(0L, map.getAndDecrement(key));//
-    assertEquals(-1L, map.get(key));//
+    assertEquals(0L, map.getAndDecrement(key));
+    assertEquals(-1L, map.get(key));
 
-    assertEquals(-1L, map.getAndIncrement(key));//
-    assertEquals(0L, map.get(key));//
-    assertTrue(map.containsKey(key));//
+    assertEquals(-1L, map.getAndIncrement(key));
+    assertEquals(0L, map.get(key));
+    assertTrue(map.containsKey(key));
 
-    assertEquals(0L, map.getAndDecrement(key));//
-    assertEquals(-1L, map.get(key));//
+    assertEquals(0L, map.getAndDecrement(key));
+    assertEquals(-1L, map.get(key));
   }
 
   public void testAddAndGet() {
@@ -204,31 +203,31 @@ public class AtomicLongMapTest extends TestCase {
       long before = map.get(key);
       long result = map.addAndGet(key, addend);
       long after = map.get(key);
-      assertEquals(before + addend, after);//
-      assertEquals(after, result);//
+      assertEquals(before + addend, after);
+      assertEquals(after, result);
       addend = after;
     }
-    assertEquals(1, map.size());//
-    assertTrue(!map.isEmpty());//
-    assertTrue(map.containsKey(key));//
+    assertEquals(1, map.size());
+    assertTrue(!map.isEmpty());
+    assertTrue(map.containsKey(key));
   }
 
   public void testAddAndGet_zero() {
     AtomicLongMap<String> map = AtomicLongMap.create();
     String key = "key";
     long value = random.nextInt(MAX_ADDEND);
-    assertEquals(0L, map.get(key));//
-    assertFalse(map.containsKey(key));//
+    assertEquals(0L, map.get(key));
+    assertFalse(map.containsKey(key));
 
-    assertEquals(value, map.addAndGet(key, value));//
-    assertEquals(value, map.get(key));//
+    assertEquals(value, map.addAndGet(key, value));
+    assertEquals(value, map.get(key));
 
-    assertEquals(0L, map.addAndGet(key, -1 * value));//
-    assertEquals(0L, map.get(key));//
-    assertTrue(map.containsKey(key));//
+    assertEquals(0L, map.addAndGet(key, -1 * value));
+    assertEquals(0L, map.get(key));
+    assertTrue(map.containsKey(key));
 
-    assertEquals(value, map.addAndGet(key, value));//
-    assertEquals(value, map.get(key));//
+    assertEquals(value, map.addAndGet(key, value));
+    assertEquals(value, map.get(key));
   }
 
   public void testGetAndAdd() {
@@ -239,31 +238,31 @@ public class AtomicLongMapTest extends TestCase {
       long before = map.get(key);
       long result = map.getAndAdd(key, addend);
       long after = map.get(key);
-      assertEquals(before + addend, after);//
-      assertEquals(before, result);//
+      assertEquals(before + addend, after);
+      assertEquals(before, result);
       addend = after;
     }
-    assertEquals(1, map.size());//
-    assertTrue(!map.isEmpty());//
-    assertTrue(map.containsKey(key));//
+    assertEquals(1, map.size());
+    assertTrue(!map.isEmpty());
+    assertTrue(map.containsKey(key));
   }
 
   public void testGetAndAdd_zero() {
     AtomicLongMap<String> map = AtomicLongMap.create();
     String key = "key";
     long value = random.nextInt(MAX_ADDEND);
-    assertEquals(0L, map.get(key));//
-    assertFalse(map.containsKey(key));//
+    assertEquals(0L, map.get(key));
+    assertFalse(map.containsKey(key));
 
-    assertEquals(0L, map.getAndAdd(key, value));//
-    assertEquals(value, map.get(key));//
+    assertEquals(0L, map.getAndAdd(key, value));
+    assertEquals(value, map.get(key));
 
-    assertEquals(value, map.getAndAdd(key, -1 * value));//
-    assertEquals(0L, map.get(key));//
-    assertTrue(map.containsKey(key));//
+    assertEquals(value, map.getAndAdd(key, -1 * value));
+    assertEquals(0L, map.get(key));
+    assertTrue(map.containsKey(key));
 
-    assertEquals(0L, map.getAndAdd(key, value));//
-    assertEquals(value, map.get(key));//
+    assertEquals(0L, map.getAndAdd(key, value));
+    assertEquals(value, map.get(key));
   }
 
   public void testPut() {
@@ -274,54 +273,54 @@ public class AtomicLongMapTest extends TestCase {
       long before = map.get(key);
       long result = map.put(key, newValue);
       long after = map.get(key);
-      assertEquals(newValue, after);//
-      assertEquals(before, result);//
+      assertEquals(newValue, after);
+      assertEquals(before, result);
       newValue += newValue;
     }
-    assertEquals(1, map.size());//
-    assertTrue(!map.isEmpty());//
-    assertTrue(map.containsKey(key));//
+    assertEquals(1, map.size());
+    assertTrue(!map.isEmpty());
+    assertTrue(map.containsKey(key));
   }
 
   public void testPut_zero() {
     AtomicLongMap<String> map = AtomicLongMap.create();
     String key = "key";
     long value = random.nextInt(MAX_ADDEND);
-    assertEquals(0L, map.get(key));//
-    assertFalse(map.containsKey(key));//
+    assertEquals(0L, map.get(key));
+    assertFalse(map.containsKey(key));
 
-    assertEquals(0L, map.put(key, value));//
-    assertEquals(value, map.get(key));//
+    assertEquals(0L, map.put(key, value));
+    assertEquals(value, map.get(key));
 
-    assertEquals(value, map.put(key, 0L));//
-    assertEquals(0L, map.get(key));//
-    assertTrue(map.containsKey(key));//
+    assertEquals(value, map.put(key, 0L));
+    assertEquals(0L, map.get(key));
+    assertTrue(map.containsKey(key));
 
-    assertEquals(0L, map.put(key, value));//
-    assertEquals(value, map.get(key));//
+    assertEquals(0L, map.put(key, value));
+    assertEquals(value, map.get(key));
   }
 
   public void testPutAll() {
     Map<String, Long> in = ImmutableMap.of("1", 1L, "2", 2L, "3", 3L);
     AtomicLongMap<String> map = AtomicLongMap.create();
-    assertTrue(map.isEmpty());//
-    assertSame(0, map.size());//
-    assertFalse(map.containsKey("1"));//
-    assertFalse(map.containsKey("2"));//
-    assertFalse(map.containsKey("3"));//
-    assertEquals(0L, map.get("1"));//
-    assertEquals(0L, map.get("2"));//
-    assertEquals(0L, map.get("3"));//
+    assertTrue(map.isEmpty());
+    assertSame(0, map.size());
+    assertFalse(map.containsKey("1"));
+    assertFalse(map.containsKey("2"));
+    assertFalse(map.containsKey("3"));
+    assertEquals(0L, map.get("1"));
+    assertEquals(0L, map.get("2"));
+    assertEquals(0L, map.get("3"));
 
     map.putAll(in);
-    assertFalse(map.isEmpty());//
-    assertSame(3, map.size());//
-    assertTrue(map.containsKey("1"));//
-    assertTrue(map.containsKey("2"));//
-    assertTrue(map.containsKey("3"));//
-    assertEquals(1L, map.get("1"));//
-    assertEquals(2L, map.get("2"));//
-    assertEquals(3L, map.get("3"));//
+    assertFalse(map.isEmpty());
+    assertSame(3, map.size());
+    assertTrue(map.containsKey("1"));
+    assertTrue(map.containsKey("2"));
+    assertTrue(map.containsKey("3"));
+    assertEquals(1L, map.get("1"));
+    assertEquals(2L, map.get("2"));
+    assertEquals(3L, map.get("3"));
   }
 
   public void testPutIfAbsent() {
@@ -332,30 +331,30 @@ public class AtomicLongMapTest extends TestCase {
       long before = map.get(key);
       long result = map.putIfAbsent(key, newValue);
       long after = map.get(key);
-      assertEquals(before, result);//
-      assertEquals(before == 0 ? newValue : before, after);//
+      assertEquals(before, result);
+      assertEquals(before == 0 ? newValue : before, after);
 
       map.remove(key);
       before = map.get(key);
       result = map.putIfAbsent(key, newValue);
       after = map.get(key);
-      assertEquals(0, before);//
-      assertEquals(before, result);//
-      assertEquals(newValue, after);//
+      assertEquals(0, before);
+      assertEquals(before, result);
+      assertEquals(newValue, after);
 
       map.put(key, 0L);
       before = map.get(key);
       result = map.putIfAbsent(key, newValue);
       after = map.get(key);
-      assertEquals(0, before);//
-      assertEquals(before, result);//
-      assertEquals(newValue, after);//
+      assertEquals(0, before);
+      assertEquals(before, result);
+      assertEquals(newValue, after);
 
       newValue += newValue;
     }
-    assertEquals(1, map.size());//
-    assertTrue(!map.isEmpty());//
-    assertTrue(map.containsKey(key));//
+    assertEquals(1, map.size());
+    assertTrue(!map.isEmpty());
+    assertTrue(map.containsKey(key));
   }
 
   public void testPutIfAbsent_zero() {
@@ -516,25 +515,63 @@ public class AtomicLongMapTest extends TestCase {
     assertEquals(0L, map.get(key));
     assertFalse(map.containsKey(key));
   }
-
+ 
+  // O teste serve para testar se o método removeallzeros() está fazendo o que ele deveria, que no caso é excluir todos os valores que são 0 de um map
+  // O teste cria um map e um lista que sempre irá guardar objetos onde o resto da divisao dele seja  diferente de zero
   public void testRemoveZeros() {
-    AtomicLongMap<Object> map = AtomicLongMap.create();
-    Set<Object> nonZeroKeys = Sets.newHashSet();
-    for (int i = 0; i < ITERATIONS; i++) {
-      Object key = new Object();
-      long value = i % 2;
-      map.put(key, value);
-      if (value != 0L) {
-        nonZeroKeys.add(key);
+    AtomicLongMap<Object> map = AtomicLongMap.create(); //Cria variável para setar os valores 0 e 1 das iterações.
+    Set<Object> nonZeroKeys = Sets.newHashSet(); // cria variável para setar todos os valores das iterações sem zero.
+    for (int i = 0; i < ITERATIONS; i++) { //Cria iteração de 0 até 100.
+      Object key = new Object(); // Cria objeto chave.
+      long value = i % 2; // Faz o mod da atual iteração com 2 (ou seja, o resto da divisão do valor atual da iteração, que será 0 ou 1)
+      map.put(key, value); // Adiciona item no objeto map.
+      if (value != 0L) { // Checa se o resto da divisão é diferente de 0
+        nonZeroKeys.add(key); // Adiciona o objeto a nonzeroKeys sempre que o value for diferente 0.
       }
     }
-    assertEquals(ITERATIONS, map.size());// Verifica se o número de itarions é igual ao de map.size
-    assertTrue(map.asMap().containsValue(0L));//Vai garantir que o resultado esperado seja verdadeiro, que o map contenha o valor 0
+    assertEquals(ITERATIONS, map.size()); //Checa se o valor da constante ITERATIONS setada acima (100) é igual ao tamanho do objeto map.
+    assertTrue(map.asMap().containsValue(0L)); // Checa se no objeto map, contém o valor 0.
 
-    map.removeAllZeros();
-    assertFalse(map.asMap().containsValue(0L));//Vai garantir que o resultado esperado seja falso, que não contenha 0 em map
-    assertEquals(ITERATIONS / 2, map.size());// Verifica se o número de itarions/2 é igual ao map.size atual
-    assertEquals(nonZeroKeys, map.asMap().keySet());// verifica se o resultado esperado é igual ao obtido.
+    map.removeAllZeros(); // Utiliza o método para remover todos os 0's do map.
+    assertFalse(map.asMap().containsValue(0L)); //Checa se no objeto map não contém o valor 0.
+    assertEquals(ITERATIONS / 2, map.size()); // Checa se o tamanho do objeto map é igual a metade da constante ITERATION dividido por 2.
+    assertEquals(nonZeroKeys, map.asMap().keySet()); // Checa se os objetos de nonzeroKeys e map são iguais.
+  }
+
+  public void testRemoveZerosWithAtomicLongMapEmpty() {
+    AtomicLongMap<Object> map = AtomicLongMap.create(); //Cria um AtomicLongMap para servir de dado para consumo da função.
+
+    map.removeAllZeros(); //Utiliza método para remover todos os zeros.
+
+    assertEquals(map.size(), 0); // Checa se o size do map é igual a zero.
+  }
+
+  public void testRemoveZerosWithAtomicLongMapOnlyZero() {
+    AtomicLongMap<Object> map = AtomicLongMap.create(); //Cria um AtomicLongMap para servir de dado para consumo da função.
+    Object key = new Object(); //Cria objeto para servir de chave para popular o map.
+
+    for (int i=0; i < ITERATIONS ; i++) { //Cria iteração até 100
+      map.put(key,0); // Adiciona objeto com valor zero no map.
+    }
+
+    map.removeAllZeros(); //Utiliza método para remover todos os zeros.
+    assertEquals(map.size(), 0); // Checa se o size do map é igual a zero.
+  }
+
+  public void testRemoveZerosWithBooleanParam() {
+    AtomicLongMap<Object> map = AtomicLongMap.create(); //Cria um AtomicLongMap para servir de dado para consumo da função.
+    Object key = new Object(); //Cria objeto para servir de chave para popular o map.
+    try { //Tenta popular o map com 100 valores true.
+      for (int i=0; i < ITERATIONS ; i++) { //Cria iteração pra contar até 100
+        map.put(key,true); // Adiciona valor true.
+      }
+      map.removeAllZeros(); // Utiliza método para remover todos os zeros.
+    }catch (IllegalStateException e) { // Trata o erro que irá acontecer devido a diferença de parâmetros.
+      // Não houve como fazer o map em um boolean.
+    }
+
+    assertNotNull(map); // Checa se o map ainda sim não é nulo.
+    assertEquals(map.size(), 0); // Checa se size do map é igual a zero.
   }
 
   public void testClear() {
@@ -542,11 +579,11 @@ public class AtomicLongMapTest extends TestCase {
     for (int i = 0; i < ITERATIONS; i++) {
       map.put(new Object(), i);
     }
-    assertEquals(ITERATIONS, map.size());// valida que o valor de iterations seja igual ao de map.size.
+    assertEquals(ITERATIONS, map.size());
 
     map.clear();
-    assertEquals(0, map.size());//Verifica se o valor esperado que é 0, é igual ao map.size()
-    assertTrue(map.isEmpty());//Vai garantir que o resultado esperado seja verdadeiro, no caso que o map esteja vazio.
+    assertEquals(0, map.size());
+    assertTrue(map.isEmpty());
   }
 
   public void testSum() {
@@ -556,24 +593,24 @@ public class AtomicLongMapTest extends TestCase {
       map.put(new Object(), i);
       sum += i;
     }
-    assertEquals(ITERATIONS, map.size());// Valida se o número de iterations é igual ao size do map
-    assertEquals(sum, map.sum());// valida se o resultado esperado que é sum é igual ao map.sum()
+    assertEquals(ITERATIONS, map.size());
+    assertEquals(sum, map.sum());
   }
 
   public void testEmpty() {
     AtomicLongMap<String> map = AtomicLongMap.create();
-    assertEquals(0L, map.get("a"));//Vai garantir que o resultado esperado seja igual ao resultado obtido,
-    assertEquals(0, map.size());//Vai garantir que o resultado esperado seja igual ao resultado obtido, que no caso o map tem como size 0 bate com resultado esperado
-    assertTrue(map.isEmpty());//Vai garantir que o resultado esperado seja verdadeiro, no caso que seja vazio o map
-    assertFalse(map.remove("a", 1L));//Verifica se o valor esperado é falso ou não, no caso é falso pois não tem uma posição com "key" = a no map
-    assertFalse(map.remove("a", 0L));//
-    assertFalse(map.replace("a", 1L, 0L));//Verifica se o valor esperado é falso ou não, no caso por não ter key = a vai ser falso
+    assertEquals(0L, map.get("a"));
+    assertEquals(0, map.size());
+    assertTrue(map.isEmpty());
+    assertFalse(map.remove("a", 1L));
+    assertFalse(map.remove("a", 0L));
+    assertFalse(map.replace("a", 1L, 0L));
   }
 
   public void testSerialization() {
     AtomicLongMap<String> map = AtomicLongMap.create();
     map.put("key", 1L);
     AtomicLongMap<String> reserialized = SerializableTester.reserialize(map);
-    assertEquals(map.asMap(), reserialized.asMap());//Vai garantir que o resultado esperado seja igual ao resultado obtido, no caso que ambas as chaves sejam 1
+    assertEquals(map.asMap(), reserialized.asMap());
   }
 }
